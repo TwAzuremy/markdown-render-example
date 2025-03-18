@@ -1,0 +1,9 @@
+.markdwon-editor {
+    outline: none;
+    border: 1px solid #ccc;
+    padding: 24px;
+
+    &:focus {
+        border-color: red;
+    }
+}
