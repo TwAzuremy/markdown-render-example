@@ -3,6 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { scan } from 'react-scan';
+
+scan({
+  enabled: false,
+  log: false,
+  playSound: false,
+  showToolbar: true
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
