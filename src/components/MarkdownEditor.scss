@@ -6,4 +6,20 @@
     &:focus {
         border-color: red;
     }
+
+    .md-i {
+
+        // TODO [TEST]
+        .md-sign {
+            // display: none;
+            color: blue;
+        }
+
+        &.sign-display {
+            .md-sign {
+                // display: inline-block;
+                color: red;
+            }
+        }
+    }
 }
