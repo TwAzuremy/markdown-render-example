@@ -10,7 +10,7 @@ const renderer = {
         const text = this.parser.parseInline(tokens);
         const escapedText = tokens.reduce((acc, item) => acc + item.text, "");
 
-        return `<h${depth} class="md-e md-b" data-type="heading" data-anchor="${spacesSeparatedToHump(escapedText)}"><span class="md-tag md-prefix-tag">${"#".repeat(depth) + " "}</span><span class="md-content">${text}</span></h${depth}>`;
+        return `<h${depth} class="md-e md-b" data-type="heading" data-anchor="${spacesSeparatedToHump(escapedText)}"><span class="md-sign md-prefix-sign">${"#".repeat(depth) + " "}</span><span class="md-content">${text}</span></h${depth}>`;
     },
     paragraph({ tokens }) {
         return `<p class="md-e md-b" data-type="paragraph">${this.parser.parseInline(tokens)}</p>`;
@@ -18,14 +18,14 @@ const renderer = {
     // Inline-level renderer methods
     strong({ tokens, raw, text }) {
         // Detach markdown symbols.
-        const tags = raw.split(text);
+        const signs = raw.split(text);
 
-        return `<span class="md-i" data-type="strong"><span class="md-tag md-prefix-tag">${tags[0]}</span><strong class="md-content">${this.parser.parseInline(tokens)}</strong><span class="md-tag md-suffix-tag">${tags[1]}</span></span>`;
+        return `<span class="md-i" data-type="strong"><span class="md-sign md-prefix-sign">${signs[0]}</span><strong class="md-content">${this.parser.parseInline(tokens)}</strong><span class="md-sign md-suffix-sign">${signs[1]}</span></span>`;
     },
     em({ tokens, raw, text }) {
-        const tags = raw.split(text);
+        const signs = raw.split(text);
 
-        return `<span class="md-i" data-type="em"><span class="md-tag md-prefix-tag">${tags[0]}</span><em class="md-content">${this.parser.parseInline(tokens)}</em><span class="md-tag md-suffix-tag">${tags[1]}</span></span>`;
+        return `<span class="md-i" data-type="em"><span class="md-sign md-prefix-sign">${signs[0]}</span><em class="md-content">${this.parser.parseInline(tokens)}</em><span class="md-sign md-suffix-sign">${signs[1]}</span></span>`;
     },
     br() {
         return `<br class="md-i" data-type="br">`;
