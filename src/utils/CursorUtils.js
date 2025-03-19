@@ -150,3 +150,34 @@ function getTextRange(editableNode, startOffset, endOffset) {
 
     return range;
 }
+
+/**
+ * Get the DOM element under the cursor position.
+ * 
+ * This function gets the DOM element where the cursor is located through the current selection object. 
+ * When the cursor is inside a text node, it returns its parent element node; 
+ * Otherwise, return directly to the node where it is located.
+ * 
+ * @param {Node} container A container element used to limit the scope of the lookup
+ * @returns {Node|null} Returns the DOM element under the cursor, 
+ *      and null if there is no selection or the container is invalid.
+ * 
+ * @example
+ * const element = getElementUnderCursor(container);
+ */
+export const getElementUnderCursor = (container) => {
+    if (!container) return null;
+
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return null;
+
+    const range = sel.getRangeAt(0);
+
+    // Get the element under the cursor.
+    let node = range.startContainer;
+    if (node.nodeType === Node.TEXT_NODE) {
+        node = node.parentNode;
+    }
+
+    return node;
+};
