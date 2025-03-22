@@ -7,19 +7,41 @@
         border-color: red;
     }
 
-    .md-i {
+    .md-i,
+    .md-b {
 
         // TODO [TEST]
-        .md-sign {
+        .md-sign,
+        .md-image-content {
             // display: none;
-            color: blue;
+            color: rgb(160, 160, 160);
         }
 
         &.sign-display {
             .md-sign {
                 // display: inline-block;
-                color: red;
+                color: rgb(255, 0, 0);
             }
         }
+
+        &[data-type=image].sign-display {
+            .md-image-content {
+                // display: inline-block;
+                color: rgb(255, 0, 0);
+            }
+        }
+    }
+
+    img {
+        width: 100%;
+    }
+
+    blockquote {
+        border-left: 4px solid #ccc;
+        padding-left: 12px;
+    }
+
+    p[data-type=paragraph] {
+        margin: 12px 0;
     }
 }

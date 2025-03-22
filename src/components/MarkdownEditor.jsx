@@ -3,8 +3,9 @@ import "./MarkdownEditor.scss";
 import ContentEditable from "react-contenteditable";
 import { memo, useEffect, useRef, useState } from "react";
 
-import { parseMarkdownString, parseHTMLElement } from "../renderer/MarkdownRenderer";
-import { saveCursorSelection, restoreCursorSelection, getElementUnderCursor } from "../utils/CursorUtils";
+import { parseMarkdownString } from "../renderer/MarkdownRenderer";
+import { parseHTMLElement } from "../renderer/Catcher";
+import { saveCursorSelection, restoreCursorSelection, getElementUnderCursor, insertAtCursor } from "../utils/CursorUtils";
 import { findClosestElement, findFurthestElement } from "../utils/DOMUtils";
 import { debounce } from "../utils/BaseUtils";
 
@@ -18,19 +19,29 @@ const MarkdownEditor = memo(({ md = "", ...props }) => {
     const [content, setContent] = useState(null);
     const [cursor, setCursor] = useState({ start: 0, end: 0 });
 
-    const handleChange = debounce(async () => {
+    const handleChange = debounce(async (cursorOffset = 0) => {
         const container = editorElementRef.current;
 
         // Save the cursor position before rendering.
         const selection = saveCursorSelection(container);
 
         // Restore the node back to a markdown string.
-        const markdown = await parseHTMLElement(container);
+        const tokens = parseHTMLElement(container);
+        const markdown = tokens.text.replace(/(\n{2})+$/gm, "");
+
         // Re-render markdown
         const html = await parseMarkdownString(markdown);
         setContent(html);
 
-        setCursor(selection);
+        if (typeof cursorOffset !== "number") {
+            cursorOffset = 0;
+        }
+
+        setCursor({
+            // Possible cursor offset or removed zero-width spaces.
+            start: selection.start + cursorOffset - (tokens?.zwpAmount || 0),
+            end: selection.end + cursorOffset - (tokens?.zwpAmount || 0)
+        });
     }, 100);
 
     /**
@@ -50,7 +61,7 @@ const MarkdownEditor = memo(({ md = "", ...props }) => {
      * This is used to prevent the `Keyup` from affecting the active state of an HTML element.
      * 
      * @function
-     * @param {Event} event - The keyboard event object.
+     * @param {KeyboardEvent} event - The keyboard event object.
      * @returns {void}
      */
     const handleKeyUp = (event) => {
@@ -59,14 +70,40 @@ const MarkdownEditor = memo(({ md = "", ...props }) => {
     };
 
     /**
+     * 
+     * @param {KeyboardEvent} event 
+     * @returns {void}
+     */
+    const handleKeyDown = (event) => {
+        if (!event.shiftKey && event.key === "Enter") {
+            event.preventDefault();
+
+            // Press Enter to create a new paragraph.
+            insertAtCursor("\n\n\u200b");
+            handleChange(-2);
+        }
+
+        if (event.shiftKey && event.key === "Enter") {
+            event.preventDefault();
+            insertAtCursor("\\\n\u200b");
+            // TODO [DOING] Hold down Ctrl + Enter to wrap lines.
+            // handleChange();
+        }
+
+        requestAnimationFrame(handleCursorMove);
+    };
+
+    /**
      * Handles the cursor movement and updates the rendering of markdown signs.
      * It identifies the element under the cursor and determines if it's a markdown inline or block element.
      * Based on that, it calls the appropriate rendering logic.
      * 
      * @function
+     * @param {boolean} [compulsion=false] - A flag that controls whether the rendering is mandatory.
+     * 
      * @returns {void}
      */
-    const handleCursorMove = () => {
+    const handleCursorMove = (compulsion = false) => {
         // Get the element under the cursor.
         const elementUnderCursor = getElementUnderCursor(editorElementRef.current);
 
@@ -79,7 +116,7 @@ const MarkdownEditor = memo(({ md = "", ...props }) => {
         }
 
         // Controls whether the markdown sign is rendered based on the container found.
-        renderSigns(container);
+        renderSigns(container, compulsion);
     };
 
     useEffect(() => {
@@ -92,7 +129,7 @@ const MarkdownEditor = memo(({ md = "", ...props }) => {
         // It is possible that the `cursor` is null, so the default value is set.
         restoreCursorSelection(editorElementRef.current, cursor || { start: 0, end: 0 });
         // When the cursor moves, you can also control the display of the markdown sign.
-        requestAnimationFrame(handleCursorMove);
+        requestAnimationFrame(() => handleCursorMove(true));
     }, [cursor]);
 
     /**
@@ -139,7 +176,7 @@ const MarkdownEditor = memo(({ md = "", ...props }) => {
             onChange={handleChange}
             onBlur={handleBlur}
             onKeyUp={handleKeyUp}
-            onKeyDown={() => requestAnimationFrame(handleCursorMove)}
+            onKeyDown={handleKeyDown}
             onMouseUp={() => requestAnimationFrame(handleCursorMove)} />
     );
 });
