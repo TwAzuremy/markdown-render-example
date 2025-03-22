@@ -18,8 +18,8 @@ function parseInlineElement(container) {
             const isSingleBR = isSingleBRWithNoAttributes(inline);
 
             const raw = {
-                br: () => catcher.br?.().text,
-                image: () => catcher.image?.(inline).text
+                br: () => restorer.br?.().text,
+                image: () => restorer.image?.(inline).text
             }[type]?.() || (isSingleBR ? "\n> \u200b" : inline?.textContent || "");
 
             // Count the number of zero-width spaces.
@@ -93,7 +93,7 @@ export function parseHTMLElement(container) {
 
         // Get the markdown type.
         const type = block.dataset?.type;
-        const tokens = catcher[type](block);
+        const tokens = restorer[type](block);
 
         markdown += tokens.text + "\n\n";
         zwpAmount += tokens?.zwpAmount || 0;
@@ -105,7 +105,7 @@ export function parseHTMLElement(container) {
     };
 }
 
-export const catcher = {
+export const restorer = {
     // Block-level catcher methods
     space() {
         return {
@@ -133,7 +133,7 @@ export const catcher = {
             }
 
             if (type === "blockquote") {
-                return catcher.blockquote(child)
+                return restorer.blockquote(child)
                     .split("\n")
                     .map(line => sign + line)
                     .join("\n");

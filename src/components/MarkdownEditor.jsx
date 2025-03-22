@@ -4,7 +4,7 @@ import ContentEditable from "react-contenteditable";
 import { memo, useEffect, useRef, useState } from "react";
 
 import { parseMarkdownString } from "../renderer/MarkdownRenderer";
-import { parseHTMLElement } from "../renderer/Catcher";
+import { parseHTMLElement } from "../renderer/Restorer";
 import { saveCursorSelection, restoreCursorSelection, getElementUnderCursor, insertAtCursor } from "../utils/CursorUtils";
 import { findClosestElement, findFurthestElement } from "../utils/DOMUtils";
 import { debounce } from "../utils/BaseUtils";
