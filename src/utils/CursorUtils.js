@@ -181,3 +181,17 @@ export const getElementUnderCursor = (container) => {
 
     return node;
 };
+
+export const insertAtCursor = (text) => {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+
+    const range = sel.getRangeAt(0);
+    const textNode = document.createTextNode(text);
+    range.insertNode(textNode);
+
+    range.setStartAfter(textNode);
+    range.setEndAfter(textNode);
+    sel.removeAllRanges();
+    sel.addRange(range);
+};
